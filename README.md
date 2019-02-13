@@ -1,7 +1,7 @@
 # Presentation for Hamburg UseR Meeting Feb 13 2019
 
 [Click here if ya just wanna get to the
-stuff.](https://mpadge.github.io/hamburg-user-feb2019/slides/hamburg-user-feb2019.html#1).
+stuff.](https://mpadge.github.io/hamburg-Ruser-feb2019/slides/hamburg-Ruser-feb2019.html).
 Alternatively, if you're interested in the *how*, here's that stuff:
 
 1. Clone the repo
