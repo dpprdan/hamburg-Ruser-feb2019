@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Using R to help plan the   future of transport</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Mark Padgham   Active Transport Futures" />
+    <link href="libs/font-awesome/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link href="libs/ionicons/css/ionicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Using R to help plan the <br> future of transport
+## Hamburg R Users Group
+### Mark Padgham <br> Active Transport Futures
+### Wednesday 13th February, 2019
+
+---
+
+
+
+
+
+
+
+class: left, middle, inverse
+
+
+.left-column[
+<i class="fab  fa-github fa-2x fa-spin "></i> atfutures
+
+<i class="fab  fa-github fa-2x fa-spin "></i> moveability
+
+<i class="fab  fa-github fa-2x fa-spin "></i> mpadge
+
+<i class="fab  fa-github fa-2x fa-spin "></i> ropensci
+]
+
+.right-column[
+<i class="fab  fa-twitter fa-2x fa-spin "></i> bikesRdata
+
+<i class="fas  fa-envelope "></i> .small[mark.padgham@email.com]&lt;br&gt;&lt;br&gt;
+
+<i class="ion  ion-ios-world-outline ion-5x "></i> atfutures.github.io
+
+<i class="ion  ion-ios-world-outline ion-5x "></i> moveability.city
+]
+
+
+.box-bottom[
+slides at &lt;br&gt;
+[https://github.com/mpadge/hamburg-Ruser-feb2019](https://github.com/mpadge/hamburg-Ruser-feb2019)
+]
+
+
+---
+class: left, top, inverse
+
+### Primary Collaborators
+
+.small[
+- Robin Lovelace (@robinlovelace)
+- Layik Hama (@layik)
+- Mike Sumner (@mdsumner)
+- Andreas Petutschnig (@karpfen)
+- Andrew Smith (@virgesmith)
+  ]
+
+### Additional <i class="fab  fa-github fa-spin "></i> Contributions From ... 
+
+.small[
+.left-column[
+- RichardEllison
+- tbuckl
+- skcott
+- hrbrmstr
+- maelle
+- mdsumner
+- mem48
+- jimshady
+- angela-li
+  ]
+
+.right-column[
+- graceli8
+- arfon
+- jimhester
+- tazinho
+- karthik
+- fzenoni
+- mhenderson
+- patperu
+- eyesofbambi
+  ]
+  ]
+
+---
+background-image: url(img/fortune-beach.png)
+---
+class: left, top, inverse
+
+# Active Transport Futures
+
+
+
+---
+background-image: url(img/amsterdam-cars.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+class: left, top, inverse
+
+# Active Transport Futures
+
+---
+class: left, top, inverse
+background-image: url(img/ms-promenade.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+# Active Transport Futures
+
+
+---
+class: left, top, inverse
+background-image: url(img/kl-bike-path.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+# [Active Transport Futures](http://www.who.int/sustainable-development/cities/en/)
+
+---
+
+# Active Transport Futures
+
+For a given city:
+
+- Collate data on patterns of urban mobility
+- Collate data on transport networks &lt;br&gt; (road, pedestrian, public transport)
+- Analyse "flows" throughout the network(s)
+- Collate data on (spatial patterns of) air pollution
+- Analyse dynamic interactions between movement, air pollution, and health
+- Develop, compare, contrast scenarios for ameliorating negative effects while
+  enhancing positive effects
+- [Health Economic Assessment Tool (HEAT)](https://heatwalkingcycling.org/#homepage)
+
+---
+
+# Active Transport Futures
+
+For a given city:
+
+- ~~Collate data on patterns of urban mobility~~
+- &lt;span style="color: #ff6900;"&gt;Collate data on transport networks &lt;br&gt; (road, pedestrian, public transport)&lt;/span&gt;
+- &lt;span style="color: #ff6900;"&gt;Analyse "flows" throughout the network(s)&lt;/span&gt;
+- ~~Collate data on (spatial patterns of) air pollution~~
+- &lt;span style="color: #ff6900;"&gt;Analyse dynamic interactions between movement, air pollution&lt;/span&gt;~~, and health~~
+- ~~Develop, compare, contrast scenarios for ameliorating negative effects while
+  enhancing positive effects~~
+- ~~[Health Economic Assessment Tool (HEAT)](https://heatwalkingcycling.org/#homepage)~~
+
+---
+
+# Active Transport Futures
+
+## Software: R Packages
+
+- `osmdata` (Open Street Map data)
+- `dodgr` (Distances On Directed GRaphs)
+- `stplanr` (Sustainable Transport PLANning in R)
+- `osmplotr` (OSM plotting routines)
+- `geoplumber` (Turbo-charged web server for geo data)
+- `bikedata` (Data from public hire bicycles)
+- `spatialcluster`
+- `gtfs-router` (Public transport GTFS routing)
+- ... plus lots more
+
+---
+
+# Active Transport Futures
+
+## Software: R Packages
+
+- `osmdata` (Open Street Map data)
+- `dodgr` (Distances On Directed GRaphs)
+- ~~`stplanr` (Sustainable Transport PLANning in R)~~
+- ~~`osmplotr` (OSM plotting routines)~~
+- ~~`geoplumber` (Turbo-charged web server for geo data)~~
+- ~~`bikedata` (Data from public hire bicycles)~~
+- ~~`spatialcluster`~~
+- ~~`gtfs-router` (Public transport GTFS routing)~~
+- ... plus lots more
+
+---
+class: left, top
+
+# The osmdata package
+
+OSM = Open Street Map
+
+- CRAN
+- <i class="fab  fa-github fa-spin "></i> `ropensci/osmdata`
+- Several mentions on
+  [OSM wiki](https://wiki.openstreetmap.org/wiki/OSM_Scientific_Tools)
+
+--
+
+## Why OSM data?
+
+---
+class: center, top, inverse
+.fontBIG[
+Popquiz: &lt;br&gt;&lt;br&gt;What is the least mapped country on the planet?
+]
+
+---
+class: center, middle, inverse
+background-image: url(img/osm-north-korea.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-bing.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-google.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-google2.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-osm.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+
+# The osmdata package
+
+- CRAN
+- <i class="fab  fa-github fa-spin "></i> `ropensci/osmdata`
+- Several mentions on
+  [OSM wiki](https://wiki.openstreetmap.org/wiki/OSM_Scientific_Tools)
+
+## Why OSM data?
+
+--
+
+Because Open Street Map is the most comprehensive street atlas humanity has ever
+created.
+
+## How?
+
+`osmdata` uses the `overpass` server to retrieve data
+
+
+---
+
+# The osmdata package
+
+
+```r
+library (osmdata)
+opq ("hamburg de")
+```
+
+```
+## $bbox
+## [1] "53.390341,9.840654,53.710341,10.160654"
+## 
+## $prefix
+## [1] "[out:xml][timeout:25];\n(\n"
+## 
+## $suffix
+## [1] ");\n(._;&gt;;);\nout body;"
+## 
+## $features
+## NULL
+## 
+## attr(,"class")
+## [1] "list"           "overpass_query"
+```
+
+---
+
+
+# The osmdata package
+
+
+```r
+library (osmdata)
+opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway")
+```
+
+```
+## $bbox
+## [1] "53.390341,9.840654,53.710341,10.160654"
+## 
+## $prefix
+## [1] "[out:xml][timeout:25];\n(\n"
+## 
+## $suffix
+## [1] ");\n(._;&gt;;);\nout body;"
+## 
+## $features
+## [1] " [\"highway\"]"
+## 
+## attr(,"class")
+## [1] "list"           "overpass_query"
+```
+
+---
+
+# The osmdata package
+
+
+```r
+library (osmdata)
+opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+```
+
+```
+## Object of class 'osmdata' with:
+##                  $bbox : 51.8401448,7.4737853,52.0600251,7.7743634
+##         $overpass_call : The call submitted to the overpass API
+##                  $meta : metadata including timestamp and version numbers
+##            $osm_points : 'sf' Simple Features Collection with 440165 points
+##             $osm_lines : 'sf' Simple Features Collection with 115161 linestrings
+##          $osm_polygons : 'sf' Simple Features Collection with 2257 polygons
+##        $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings
+##     $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons
+```
+
+
+---
+
+# The osmdata package
+
+
+```r
+library (osmdata)
+opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+```
+
+- `opq` <i class="fas  fa-long-arrow-alt-right "></i> .bold[WHERE]
+- `add_osm_feature` <i class="fas  fa-long-arrow-alt-right "></i> .bold[WHAT]
+- `osmdata_sf` <i class="fas  fa-long-arrow-alt-right "></i> .bold[HOW]
+
+---
+
+# The osmdata package - Spatial Formats
+
+
+```r
+library (osmdata)
+opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+```
+
+- `osmdata_sf` <i class="fas  fa-long-arrow-alt-right "></i> .bold[Simple Features]
+
+---
+
+# The osmdata package - Spatial Formats
+
+
+```r
+library (osmdata)
+opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_xml (file = "hamburg.osm")
+```
+
+- `osmdata_sf` <i class="fas  fa-long-arrow-alt-right "></i> .bold[Simple Features]
+- `osmdata_sp` <i class="fas  fa-long-arrow-alt-right "></i> .bold[R Spatial]
+- `osmdata_sc` <i class="fas  fa-long-arrow-alt-right "></i> .bold[Silicate (Simplicial Complex)]
+- `osmdata_xml` <i class="fas  fa-long-arrow-alt-right "></i> .bold[XML / OSM]
+- `osmdata_pbf` <i class="fas  fa-long-arrow-alt-right "></i> .bold[PBF (Protocol Buffer Format)]
+
+---
+
+# The osmdata package
+
+
+```r
+hamburg &lt;- opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+hamburg
+```
+
+```
+## Object of class 'osmdata' with:
+##                  $bbox : 51.8401448,7.4737853,52.0600251,7.7743634
+##         $overpass_call : The call submitted to the overpass API
+##                  $meta : metadata including timestamp and version numbers
+##            $osm_points : 'sf' Simple Features Collection with 440165 points
+##             $osm_lines : 'sf' Simple Features Collection with 115161 linestrings
+##          $osm_polygons : 'sf' Simple Features Collection with 2257 polygons
+##        $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings
+##     $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons
+```
+---
+
+# The osmdata package - Visualisation
+
+
+```r
+hamburg &lt;- opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+plot (hamburg)
+```
+
+```
+## Error in xy.coords(x, y, xlabel, ylabel, log) :
+##   'x' is a list, but does not have components 'x' and 'y'
+```
+
+---
+
+# The osmdata package - Visualisation
+
+
+```r
+hamburg
+```
+
+```
+## Object of class 'osmdata' with:
+##                  $bbox : 51.8401448,7.4737853,52.0600251,7.7743634
+##         $overpass_call : The call submitted to the overpass API
+##                  $meta : metadata including timestamp and version numbers
+##            $osm_points : 'sf' Simple Features Collection with 440165 points
+##             $osm_lines : 'sf' Simple Features Collection with 115161 linestrings
+##          $osm_polygons : 'sf' Simple Features Collection with 2257 polygons
+##        $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings
+##     $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons
+```
+
+---
+
+# The osmdata package - Visualisation
+
+
+```r
+hamburg
+```
+
+```
+## Object of class 'osmdata' with:
+##                  $bbox : 51.8401448,7.4737853,52.0600251,7.7743634
+##         $overpass_call : The call submitted to the overpass API
+##                  $meta : metadata including timestamp and version numbers
+##            $osm_points : 'sf' Simple Features Collection with 440165 points
+##             $osm_lines : 'sf' Simple Features Collection with 115161 linestrings
+##          $osm_polygons : 'sf' Simple Features Collection with 2257 polygons
+##        $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings
+##     $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons
+```
+
+```r
+dim (hamburg$osm_lines)
+```
+
+```
+## [1] 115161    682
+```
+&lt;span style="color: #ff6900;font-weight: bold;"&gt;
+`\(\rightarrow\)` The lines have 681 fields (plus 1 geometry column)
+&lt;/span&gt;
+
+---
+
+# The osmdata package - Visualisation
+
+
+```r
+names (hamburg$osm_lines)
+```
+
+```
+##   [1] "osm_id"                             
+##   [2] "name"                               
+##   [3] "Cranzer"                            
+##   [4] "FIXME"                              
+##   [5] "Raststätte"                         
+##   [6] "TMC.cid_58.tabcd_1.Class"           
+##   [7] "TMC.cid_58.tabcd_1.Direction"       
+##   [8] "TMC.cid_58.tabcd_1.LCLversion"      
+##   [9] "TMC.cid_58.tabcd_1.LocationCode"    
+##  [10] "TMC.cid_58.tabcd_1.NextLocationCode"
+##  [11] "TMC.cid_58.tabcd_1.PrevLocationCode"
+##  [12] "abandoned.highway"                  
+##  [13] "abutters"                           
+##  [14] "access"                             
+##  [15] "access.backward"                    
+##  [16] "access.conditional"                 
+##  [17] "access.customer"                    
+##  [18] "access.goods"                       
+##  [19] "access.lanes"                       
+##  [20] "access.lanes.backward"              
+##  [21] "access.lanes.forward"               
+##  [22] "access.motor_vehicle.conditional"   
+##  [23] "access.note"                        
+##  [24] "access.source"                      
+##  [25] "access.vehicle"                     
+##  [26] "access.vehicles"                    
+##  [27] "addr.city"                          
+##  [28] "addr.country"                       
+##  [29] "addr.housenumber"                   
+##  [30] "addr.postcode"                      
+##  [31] "addr.street"                        
+##  [32] "addr.suburb"                        
+##  [33] "addr.unit"                          
+##  [34] "advertising"                        
+##  [35] "agricultural"                       
+##  [36] "alt_name"                           
+##  [37] "amenity"                            
+##  [38] "arcade.left"                        
+##  [39] "arcade.right"                       
+##  [40] "architect"                          
+##  [41] "area"                               
+##  [42] "area.highway"                       
+##  [43] "artist_name"                        
+##  [44] "artwork_type"                       
+##  [45] "barrier"                            
+##  [46] "bdouble"                            
+##  [47] "bench"                              
+##  [48] "bicycle"                            
+##  [49] "bicycle.backward"                   
+##  [50] "bicycle.class"                      
+##  [51] "bicycle.conditional"                
+##  [52] "bicycle.footway"                    
+##  [53] "bicycle.forward"                    
+##  [54] "bicycle.lanes"                      
+##  [55] "bicycle.left"                       
+##  [56] "bicycle.oneway"                     
+##  [57] "bicycle.right"                      
+##  [58] "bicycle_road"                       
+##  [59] "bin"                                
+##  [60] "boundary"                           
+##  [61] "brand"                              
+##  [62] "bridge"                             
+##  [63] "bridge.movable"                     
+##  [64] "bridge.name"                        
+##  [65] "bridge.structure"                   
+##  [66] "bridge_ref"                         
+##  [67] "bridleway"                          
+##  [68] "building"                           
+##  [69] "building.colour"                    
+##  [70] "building.height"                    
+##  [71] "building.levels"                    
+##  [72] "building.material"                  
+##  [73] "building.part"                      
+##  [74] "building_status"                    
+##  [75] "buildingpart"                       
+##  [76] "bus"                                
+##  [77] "bus.lanes"                          
+##  [78] "bus.lanes.backward"                 
+##  [79] "bus.lanes.forward"                  
+##  [80] "button_operated"                    
+##  [81] "capacity"                           
+##  [82] "capacity.shower"                    
+##  [83] "capacity.smoker_free"               
+##  [84] "capacity.toilets"                   
+##  [85] "capacity.truck"                     
+##  [86] "capacity.truck_diesel_pumps"        
+##  [87] "car"                                
+##  [88] "cb_communication_shop"              
+##  [89] "change.lanes"                       
+##  [90] "change.lanes.backward"              
+##  [91] "change.lanes.forward"               
+##  [92] "check_date"                         
+##  [93] "class.bicycle"                      
+##  [94] "colonnade.left"                     
+##  [95] "colonnade.right"                    
+##  [96] "colour"                             
+##  [97] "comment"                            
+##  [98] "communication.mobile_phone"         
+##  [99] "communication.radio"                
+## [100] "communication.television"           
+## [101] "condition"                          
+## [102] "construction"                       
+## [103] "construction.cycleway"              
+## [104] "construction_year"                  
+## [105] "contact.fax"                        
+## [106] "contact.phone"                      
+## [107] "conveying"                          
+## [108] "copier"                             
+## [109] "count"                              
+## [110] "covered"                            
+## [111] "created_by"                         
+## [112] "crossing"                           
+## [113] "crossing_ref"                       
+## [114] "cuisine"                            
+## [115] "cutting"                            
+## [116] "cycle"                              
+## [117] "cycleway"                           
+## [118] "cycleway.backward"                  
+## [119] "cycleway.bicycle"                   
+## [120] "cycleway.both"                      
+## [121] "cycleway.both.bicycle"              
+## [122] "cycleway.both.oneway"               
+## [123] "cycleway.both.segregated"           
+## [124] "cycleway.both.smoothness"           
+## [125] "cycleway.both.surface"              
+## [126] "cycleway.both.traffic_sign"         
+## [127] "cycleway.both.width"                
+## [128] "cycleway.bth.bicycle"               
+## [129] "cycleway.foot"                      
+## [130] "cycleway.forward"                   
+## [131] "cycleway.lane"                      
+## [132] "cycleway.left"                      
+## [133] "cycleway.left.bicycle"              
+## [134] "cycleway.left.foot"                 
+## [135] "cycleway.left.lane"                 
+## [136] "cycleway.left.oneway"               
+## [137] "cycleway.left.segregated"           
+## [138] "cycleway.left.smoothness"           
+## [139] "cycleway.left.surface"              
+## [140] "cycleway.left.surface.colour"       
+## [141] "cycleway.left.tactile_paving"       
+## [142] "cycleway.left.traffic_sign"         
+## [143] "cycleway.left.width"                
+## [144] "cycleway.note"                      
+## [145] "cycleway.oneway"                    
+## [146] "cycleway.right"                     
+## [147] "cycleway.right.bicycle"             
+## [148] "cycleway.right.foot"                
+## [149] "cycleway.right.lane"                
+## [150] "cycleway.right.oneway"              
+## [151] "cycleway.right.segrated"            
+## [152] "cycleway.right.segregated"          
+## [153] "cycleway.right.smoothness"          
+## [154] "cycleway.right.surface"             
+## [155] "cycleway.right.surface.colour"      
+## [156] "cycleway.right.tactile_paving"      
+## [157] "cycleway.right.traffic_sign"        
+## [158] "cycleway.right.width"               
+## [159] "cycleway.right_1"                   
+## [160] "cycleway.segregated"                
+## [161] "cycleway.smoothness"                
+## [162] "cycleway.surface"                   
+## [163] "cycleway.width"                     
+## [164] "day_off"                            
+## [165] "day_on"                             
+## [166] "deck"                               
+## [167] "delivery"                           
+## [168] "delivery.conditional"               
+## [169] "denomination"                       
+## [170] "depth"                              
+## [171] "description"                        
+## [172] "description.bicycle"                
+## [173] "destination"                        
+## [174] "destination.backward"               
+## [175] "destination.colour"                 
+## [176] "destination.forward"                
+## [177] "destination.lanes"                  
+## [178] "destination.lanes.backward"         
+## [179] "destination.lanes.forward"          
+## [180] "destination.ref"                    
+## [181] "destination.ref.backward"           
+## [182] "destination.ref.forward"            
+## [183] "destination.ref.lanes"              
+## [184] "destination.ref.lanes.backward"     
+## [185] "destination.ref.lanes.forward"      
+## [186] "destination.ref.to"                 
+## [187] "destination.ref.to.backward"        
+## [188] "destination.ref.to.forward"         
+## [189] "destination.ref.to.lanes"           
+## [190] "destination.symbol"                 
+## [191] "destination.symbol.forward"         
+## [192] "destination.symbol.lanes"           
+## [193] "destination.to"                     
+## [194] "diameter"                           
+## [195] "direction"                          
+## [196] "disabled"                           
+## [197] "disused.highway"                    
+## [198] "disused.railway"                    
+## [199] "disused.surface"                    
+## [200] "dog"                                
+## [201] "dog.free.wheel"                     
+## [202] "dogs"                               
+## [203] "drive_through"                      
+## [204] "driveway"                           
+## [205] "dsa.criteria"                       
+## [206] "ele"                                
+## [207] "elevator"                           
+## [208] "embankment"                         
+## [209] "emergency"                          
+## [210] "escalator"                          
+## [211] "escalator_dir"                      
+## [212] "est_width"                          
+## [213] "fast_food"                          
+## [214] "fax"                                
+## [215] "fee"                                
+## [216] "fence"                              
+## [217] "ferry"                              
+## [218] "filter"                             
+## [219] "fixme"                              
+## [220] "fixme.de"                           
+## [221] "floating"                           
+## [222] "floor"                              
+## [223] "foot"                               
+## [224] "foot.backward"                      
+## [225] "foot.conditional"                   
+## [226] "footway"                            
+## [227] "footway.right.bicycle"              
+## [228] "footway.surface"                    
+## [229] "footway.width"                      
+## [230] "ford"                               
+## [231] "forestry"
+```
+
+---
+
+# The osmdata package - Visualisation
+
+
+```r
+names (hamburg$osm_lines) [100:200]
+```
+
+```
+##   [1] "communication.television"       "condition"                     
+##   [3] "construction"                   "construction.cycleway"         
+##   [5] "construction_year"              "contact.fax"                   
+##   [7] "contact.phone"                  "conveying"                     
+##   [9] "copier"                         "count"                         
+##  [11] "covered"                        "created_by"                    
+##  [13] "crossing"                       "crossing_ref"                  
+##  [15] "cuisine"                        "cutting"                       
+##  [17] "cycle"                          "cycleway"                      
+##  [19] "cycleway.backward"              "cycleway.bicycle"              
+##  [21] "cycleway.both"                  "cycleway.both.bicycle"         
+##  [23] "cycleway.both.oneway"           "cycleway.both.segregated"      
+##  [25] "cycleway.both.smoothness"       "cycleway.both.surface"         
+##  [27] "cycleway.both.traffic_sign"     "cycleway.both.width"           
+##  [29] "cycleway.bth.bicycle"           "cycleway.foot"                 
+##  [31] "cycleway.forward"               "cycleway.lane"                 
+##  [33] "cycleway.left"                  "cycleway.left.bicycle"         
+##  [35] "cycleway.left.foot"             "cycleway.left.lane"            
+##  [37] "cycleway.left.oneway"           "cycleway.left.segregated"      
+##  [39] "cycleway.left.smoothness"       "cycleway.left.surface"         
+##  [41] "cycleway.left.surface.colour"   "cycleway.left.tactile_paving"  
+##  [43] "cycleway.left.traffic_sign"     "cycleway.left.width"           
+##  [45] "cycleway.note"                  "cycleway.oneway"               
+##  [47] "cycleway.right"                 "cycleway.right.bicycle"        
+##  [49] "cycleway.right.foot"            "cycleway.right.lane"           
+##  [51] "cycleway.right.oneway"          "cycleway.right.segrated"       
+##  [53] "cycleway.right.segregated"      "cycleway.right.smoothness"     
+##  [55] "cycleway.right.surface"         "cycleway.right.surface.colour" 
+##  [57] "cycleway.right.tactile_paving"  "cycleway.right.traffic_sign"   
+##  [59] "cycleway.right.width"           "cycleway.right_1"              
+##  [61] "cycleway.segregated"            "cycleway.smoothness"           
+##  [63] "cycleway.surface"               "cycleway.width"                
+##  [65] "day_off"                        "day_on"                        
+##  [67] "deck"                           "delivery"                      
+##  [69] "delivery.conditional"           "denomination"                  
+##  [71] "depth"                          "description"                   
+##  [73] "description.bicycle"            "destination"                   
+##  [75] "destination.backward"           "destination.colour"            
+##  [77] "destination.forward"            "destination.lanes"             
+##  [79] "destination.lanes.backward"     "destination.lanes.forward"     
+##  [81] "destination.ref"                "destination.ref.backward"      
+##  [83] "destination.ref.forward"        "destination.ref.lanes"         
+##  [85] "destination.ref.lanes.backward" "destination.ref.lanes.forward" 
+##  [87] "destination.ref.to"             "destination.ref.to.backward"   
+##  [89] "destination.ref.to.forward"     "destination.ref.to.lanes"      
+##  [91] "destination.symbol"             "destination.symbol.forward"    
+##  [93] "destination.symbol.lanes"       "destination.to"                
+##  [95] "diameter"                       "direction"                     
+##  [97] "disabled"                       "disused.highway"               
+##  [99] "disused.railway"                "disused.surface"               
+## [101] "dog"                            "dog.free.wheel"                
+## [103] "dogs"                           "drive_through"                 
+## [105] "driveway"                       "dsa.criteria"                  
+## [107] "ele"                            "elevator"                      
+## [109] "embankment"                     "emergency"                     
+## [111] "escalator"                      "escalator_dir"                 
+## [113] "est_width"                      "fast_food"                     
+## [115] "fax"                            "fee"                           
+## [117] "fence"                          "ferry"                         
+## [119] "filter"                         "fixme"                         
+## [121] "fixme.de"                       "floating"                      
+## [123] "floor"                          "foot"                          
+## [125] "foot.backward"                  "foot.conditional"              
+## [127] "footway"                        "footway.right.bicycle"         
+## [129] "footway.surface"                "footway.width"                 
+## [131] "ford"                           "forestry"
+```
+
+---
+
+# The osmdata package - Visualisation
+
+
+```r
+hamburg &lt;- opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+plot (hamburg)
+```
+
+```
+## Error in xy.coords(x, y, xlabel, ylabel, log) :
+##   'x' is a list, but does not have components 'x' and 'y'
+```
+
+```r
+plot (hamburg$osm_lines)
+```
+&lt;span style="color: #ff6900;font-weight: bold;"&gt;
+... PLEASE DON'T!
+&lt;/span&gt;
+
+
+---
+class: center, inverse
+
+.fonthuge[
+[mapdeck](https://deck.gl) &lt;br&gt; time!&lt;br&gt;
+<i class="fab  fa-uber fa-spin "></i>
+]
+
+---
+
+# mapdeck
+
+* `deck.gl` is a javascript library developed by Uber
+* `mapdeck` is an R wrapper developed by @symbolixAU
+
+---
+
+# mapdeck
+
+
+```r
+library (mapdeck)
+set_token (Sys.getenv ("MAPBOX_TOKEN"))
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %&gt;%
+    add_path (data = hamburg$osm_lines,
+              stroke_width = 1,
+              stroke_colour = "#4444dd",
+              stroke_opacity = 80)
+```
+
+
+---
+
+
+background-image: url(img/hh-lines-mapdeck.png)
+background-size: contain 
+background-position: 50% 50%
+class: center, top, inverse
+
+--
+
+.fonthuge[
+115,000 lines!
+]
+
+
+---
+
+# osmdata
+
+- The fastest and easiest method in any language for extracting OSM data
+- Only software that allows OSM data to be extracted in 3 simple lines:
+
+
+```r
+hamburg &lt;- opq ("hamburg de") %&gt;%          # WHERE
+    add_osm_feature (key = "highway") %&gt;%  # WHAT
+    osmdata_sf (quiet = FALSE)             # HOW
+```
+
+- Extremely flexible; can extract any form of OSM data.
+
+
+```r
+hamburg &lt;- opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "building") %&gt;%
+    osmdata_sf (quiet = FALSE)
+```
+- For more information, see [the website](https://github.com/ropensci/osmdata)
+
+---
+class: top, center, inverse
+
+.fonthuge[
+    **dodgr**&lt;br&gt;
+    ]
+.fontBIG[
+    Distances on Directed GRaphs
+]
+
+---
+class: top, center, inverse
+
+.fonthuge[
+    **dodgr**&lt;br&gt;
+    ]
+
+* CRAN &lt;br&gt;&lt;br&gt;
+* <i class="fab  fa-github fa-4x fa-spin " style="color:#ffcc00;"></i> [`ATFutures/dodgr`](https://github.com/atfutures/dodgr)
+
+---
+
+# dodgr
+
+Get all OSM highway data for Hamburg
+
+
+```r
+hamburg &lt;- opq ("hamburg de") %&gt;%
+    add_osm_feature (key = "highway") %&gt;%
+    osmdata_sf ()
+hamburg
+```
+
+```
+## Object of class 'osmdata' with:
+##                  $bbox : 51.8401448,7.4737853,52.0600251,7.7743634
+##         $overpass_call : The call submitted to the overpass API
+##                  $meta : metadata including timestamp and version numbers
+##            $osm_points : 'sf' Simple Features Collection with 440165 points
+##             $osm_lines : 'sf' Simple Features Collection with 115161 linestrings
+##          $osm_polygons : 'sf' Simple Features Collection with 2257 polygons
+##        $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings
+##     $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons
+```
+
+
+---
+
+# dodgr
+
+Convert Hamburg OSM data to `dodgr` format
+
+
+```r
+hamburg &lt;- osm_poly2line (hamburg) # osmdata function
+```
+
+---
+
+# dodgr
+
+Convert Hamburg OSM data to `dodgr` format
+
+
+```r
+hamburg &lt;- osm_poly2line (hamburg) # osmdata function
+library (dodgr)
+*net &lt;- weight_streetnet (hamburg$osm_lines,
+*                        wt_profile = "foot")
+dim (net); head (net)
+```
+
+```
+## [1] 887091     13
+```
+
+```
+##   geom_num edge_ed    from_id from_lon from_lat      to_id   to_lon
+## 1        1       1   10210552 9.914535 53.47043  277783046 9.915067
+## 2        1       2  277783046 9.915067 53.47044   10210552 9.914535
+## 3        1       3  277783046 9.915067 53.47044 5186817684 9.915529
+## 4        1       4 5186817684 9.915529 53.47045  277783046 9.915067
+## 5        2       5    7731852 9.889712 53.47322    8078287 9.891122
+## 6        2       6    8078287 9.891122 53.47315    7731852 9.889712
+##     to_lat          d d_weighted     highway  way_id component
+## 1 53.47044 0.03523152 0.07046304     primary    1978         1
+## 2 53.47043 0.03523152 0.07046304     primary    1978         1
+## 3 53.47045 0.03066652 0.06133305     primary    1978         1
+## 4 53.47044 0.03066652 0.06133305     primary    1978         1
+## 5 53.47315 0.09376709 0.10418565 residential 1880371         1
+## 6 53.47322 0.09376709 0.10418565 residential 1880371         1
+```
+
+---
+
+# dodgr distances
+
+
+
+```r
+dim (net)
+head (table (net$component), 10)
+```
+
+```
+## [1] 887091     13
+```
+
+```
+##      1      2      3      4      5      6      7      8      9     10 
+## 875829    364    300    244    208    202    158    134    124    124
+```
+
+
+---
+
+# dodgr distances
+
+Calculate walking distances between random points.
+
+
+```r
+v &lt;- dodgr_vertices (net)
+dim (v); head (v)
+```
+
+```
+## [1] 415543      5
+```
+
+```
+##           id        x        y component n
+## 1   10210552 9.914535 53.47043         1 0
+## 2  277783046 9.915067 53.47044         1 1
+## 3 5186817684 9.915529 53.47045         1 2
+## 4    7731852 9.889712 53.47322         1 3
+## 5    8078287 9.891122 53.47315         1 4
+## 6  387428409 9.892537 53.47309         1 5
+```
+
+```r
+pts &lt;- sample (v$id, size = 1000)
+```
+
+---
+
+# dodgr distances
+
+
+```r
+?dodgr_dists
+```
+
+```
+## _d_o_d_g_r__d_i_s_t_s
+## 
+## _D_e_s_c_r_i_p_t_i_o_n:
+## 
+##      Calculate matrix of pair-wise distances between points.
+## 
+## _U_s_a_g_e:
+## 
+##      dodgr_dists(graph, from, to, wt_profile = "bicycle", expand = 0,
+##        heap = "BHeap", parallel = TRUE, quiet = TRUE)
+##      
+## _A_r_g_u_m_e_n_t_s:
+## 
+##    graph: 'data.frame' or equivalent object representing the network
+##           graph (see Details)
+## 
+##     from: Vector or matrix of points *from* which route distances are
+##           to be calculated (see Details)
+## 
+##       to: Vector or matrix of points *to* which route distances are to
+##           be calculated (see Details)
+## 
+## wt_profile: Name of weighting profile for street networks (one of foot,
+##           horse, wheelchair, bicycle, moped, motorcycle, motorcar,
+##           goods, hgv, psv).
+## 
+##   expand: Only when 'graph' not given, the multiplicative factor by
+##           which to expand the street network surrounding the points
+##           defined by 'from' and/or 'to'.
+## 
+##     heap: Type of heap to use in priority queue. Options include
+##           Fibonacci Heap (default; 'FHeap'), Binary Heap ('BHeap'),
+##           'Radix', Trinomial Heap ('TriHeap'), Extended Trinomial Heap
+##           ('TriHeapExt', and 2-3 Heap ('Heap23').
+## 
+## parallel: If 'TRUE', perform routing calculation in parallel (see
+##           details)
+## 
+##    quiet: If 'FALSE', display progress messages on screen.
+## 
+## _V_a_l_u_e:
+## 
+##      square matrix of distances between nodes
+## 
+## _N_o_t_e:
+## 
+##      'graph' must minimally contain three columns of 'from', 'to',
+##      'dist'. If an additional column named 'weight' or 'wt' is present,
+##      shortest paths are calculated according to values specified in
+##      that column; otherwise according to 'dist' values. Either way,
+##      final distances between 'from' and 'to' points are calculated
+##      according to values of 'dist'. That is, paths between any pair of
+##      points will be calculated according to the minimal total sum of
+##      'weight' values (if present), while reported distances will be
+##      total sums of 'dist' values.
+## 
+##      The 'from' and 'to' columns of 'graph' may be either single
+##      columns of numeric or character values specifying the numbers or
+##      names of graph vertices, or combinations to two columns specifying
+##      geographical (longitude and latitude) coordinates. In the latter
+##      case, almost any sensible combination of names will be accepted
+##      (for example, 'fromx, fromy', 'from_x, from_y', or 'fr_lat,
+##      fr_lon'.)
+## 
+##      'from' and 'to' values can be either two-column matrices of
+##      equivalent of longitude and latitude coordinates, or else single
+##      columns precisely matching node numbers or names given in
+##      'graph$from' or 'graph$to'. If 'to' is missing, pairwise distances
+##      are calculated between all points specified in 'from'. If neither
+##      'from' nor 'to' are specified, pairwise distances are calculated
+##      between all nodes in 'graph'.
+## 
+##      Calculations in parallel ('parallel = TRUE') ought very generally
+##      be advantageous. For small graphs, Calculating distances in
+##      parallel is likely to offer relatively little gain in speed, but
+##      increases from parallel computation will generally markedly
+##      increase with increasing graph sizes.
+## 
+## _E_x_a_m_p_l_e_s:
+## 
+##      # A simple graph
+##      graph &lt;- data.frame (from = c ("A", "B", "B", "B", "C", "C", "D", "D"),
+##                           to = c ("B", "A", "C", "D", "B", "D", "C", "A"),
+##                           d = c (1, 2, 1, 3, 2, 1, 2, 1))
+##      dodgr_dists (graph)
+##      
+##      # A larger example from the included [hampi()] data.
+##      graph &lt;- weight_streetnet (hampi)
+##      from &lt;- sample (graph$from_id, size = 100)
+##      to &lt;- sample (graph$to_id, size = 50)
+##      d &lt;- dodgr_dists (graph, from = from, to = to)
+##      # d is a 100-by-50 matrix of distances between `from` and `to`
+##      
+##      ## Not run:
+##      
+##      # a more complex street network example, thanks to @chrijo; see
+##      # https://github.com/ATFutures/dodgr/issues/47
+##      
+##      xy &lt;- rbind (c (7.005994, 51.45774), # limbeckerplatz 1 essen germany
+##                   c (7.012874, 51.45041)) # hauptbahnhof essen germany
+##      xy &lt;- data.frame (lon = xy [, 1], lat = xy [, 2])
+##      essen &lt;- dodgr_streetnet (pts = xy, expand = 0.2, quiet = FALSE)
+##      graph &lt;- weight_streetnet (essen, wt_profile = "foot")
+##      d &lt;- dodgr_dists (graph, from = xy, to = xy)
+##      # First reason why this does not work is because the graph has multiple,
+##      # disconnected components.
+##      table (graph$component)
+##      # reduce to largest connected component, which is always number 1
+##      graph &lt;- graph [which (graph$component == 1), ]
+##      d &lt;- dodgr_dists (graph, from = xy, to = xy)
+##      # should work, but even then note that
+##      table (essen$level)
+##      # There are parts of the network on different building levels (because of
+##      # shopping malls and the like). These may or may not be connected, so it may be
+##      # necessary to filter out particular levels
+##      levs &lt;- paste0 (essen$level) # because sf data are factors
+##      index &lt;- which (! (levs == "-1" | levs == "1")) # for example
+##      library (sf) # needed for following sub-select operation
+##      essen &lt;- essen [index, ]
+##      graph &lt;- weight_streetnet (essen, wt_profile = "foot")
+##      d &lt;- dodgr_dists (graph, from = xy, to = xy)
+##      ## End(Not run)
+## 
+```
+
+---
+
+# dodgr distances
+
+Calculate walking distances between random points.
+
+
+```r
+v &lt;- dodgr_vertices (net)
+dim (v); head (v)
+```
+
+```
+## [1] 415543      5
+```
+
+```
+##           id        x        y component n
+## 1   10210552 9.914535 53.47043         1 0
+## 2  277783046 9.915067 53.47044         1 1
+## 3 5186817684 9.915529 53.47045         1 2
+## 4    7731852 9.889712 53.47322         1 3
+## 5    8078287 9.891122 53.47315         1 4
+## 6  387428409 9.892537 53.47309         1 5
+```
+
+```r
+pts &lt;- sample (v$id, size = 1000)
+```
+
+---
+
+# dodgr distances
+
+Calculate walking distances between random points.
+
+
+```r
+net &lt;- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v &lt;- dodgr_vertices (net)
+pts &lt;- sample (v$id, size = 1000)
+```
+
+---
+
+# dodgr distances
+
+
+```r
+net &lt;- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v &lt;- dodgr_vertices (net)
+pts &lt;- sample (v$id, size = 1000)
+
+system.time (
+*            d &lt;- dodgr_dists (net, from = pts, to = pts)
+             )
+```
+
+```
+##    user  system elapsed
+## 156.896   0.463  21.503
+```
+
+--
+
+
+
+```r
+class (d); dim (d); range (d); range (d, na.rm = TRUE)
+```
+
+```
+## [1] matrix
+## [1] 1000 1000
+## [1] NA NA
+## [1] 0.00000 48.94063
+```
+
+---
+
+# dodgr distances
+
+
+```r
+d &lt;- dodgr_dists (net, from = pts, to = pts)
+```
+
+```r
+class (d); dim (d); range (d); range (d, na.rm = TRUE)
+```
+
+```
+## [1] matrix
+## [1] 1000 1000
+## [1] NA NA
+## [1] 0.00000 48.94063
+```
+
+
+```r
+length (which (is.na (d))) / length (d)
+```
+
+```
+## [1] 0.05324
+```
+
+---
+
+# dodgr distances
+
+
+```r
+system.time (
+*            d &lt;- dodgr_dists (net, from = pts, to = pts)
+             )
+```
+
+```
+##    user  system elapsed
+## 156.896   0.463  21.503
+```
+
+- Those 1,000,000 distances could have been calculated with the google API
+- And that would cost `1e6 * 0.004 = $US4,000`
+- $US 4,000 for 20 seconds of calculation!
+- To date, `dodgr` provides one of the only .bold[free] ways to perform such
+  calculations, and is also entirely .bold[open source].
+
+---
+class: left, top, inverse
+background-image: url(img/ms-promenade.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+
+class: inverse, center, top
+
+.fonthuge[
+    ~~distances~~&lt;br&gt;&lt;br&gt;
+    flows
+    ]
+
+---
+
+# flows
+
+If one person travels between each of our 1,000,000 pairs of points, how many
+travel on each bit of the network?
+
+
+```r
+d &lt;- dodgr_dists (net, from = pts, to = pts)
+```
+
+```r
+flow_mat &lt;- matrix (1, nrow = 1000, ncol = 1000)
+system.time (
+*   f &lt;- dodgr_flows_aggregate (net, from = pts, to = pts,
+*                               flows = flow_mat)
+)
+```
+
+
+
+```
+##    user  system elapsed
+## 440.107   4.601  61.671
+```
+
+---
+
+# flows 
+
+
+```r
+head (net)
+```
+
+```
+##   geom_num edge_ed    from_id from_lon from_lat      to_id   to_lon
+## 1        1       1   10210552 9.914535 53.47043  277783046 9.915067
+## 2        1       2  277783046 9.915067 53.47044   10210552 9.914535
+## 3        1       3  277783046 9.915067 53.47044 5186817684 9.915529
+## 4        1       4 5186817684 9.915529 53.47045  277783046 9.915067
+## 5        2       5    7731852 9.889712 53.47322    8078287 9.891122
+## 6        2       6    8078287 9.891122 53.47315    7731852 9.889712
+##     to_lat          d d_weighted     highway  way_id component
+## 1 53.47044 0.03523152 0.07046304     primary    1978         1
+## 2 53.47043 0.03523152 0.07046304     primary    1978         1
+## 3 53.47045 0.03066652 0.06133305     primary    1978         1
+## 4 53.47044 0.03066652 0.06133305     primary    1978         1
+## 5 53.47315 0.09376709 0.10418565 residential 1880371         1
+## 6 53.47322 0.09376709 0.10418565 residential 1880371         1
+```
+
+
+---
+
+# flows 
+
+
+```r
+head (f)
+```
+
+```
+##   geom_num edge_ed    from_id from_lon from_lat      to_id   to_lon
+## 1        1       1   10210552 9.914535 53.47043  277783046 9.915067
+## 2        1       2  277783046 9.915067 53.47044   10210552 9.914535
+## 3        1       3  277783046 9.915067 53.47044 5186817684 9.915529
+## 4        1       4 5186817684 9.915529 53.47045  277783046 9.915067
+## 5        2       5    7731852 9.889712 53.47322    8078287 9.891122
+## 6        2       6    8078287 9.891122 53.47315    7731852 9.889712
+##     to_lat          d d_weighted     highway  way_id component flow
+## 1 53.47044 0.03523152 0.07046304     primary    1978         1    0
+## 2 53.47043 0.03523152 0.07046304     primary    1978         1    0
+## 3 53.47045 0.03066652 0.06133305     primary    1978         1    0
+## 4 53.47044 0.03066652 0.06133305     primary    1978         1    0
+## 5 53.47315 0.09376709 0.10418565 residential 1880371         1 2113
+## 6 53.47322 0.09376709 0.10418565 residential 1880371         1 2004
+```
+
+---
+
+# flows 
+
+
+```r
+fm &lt;- merge_directed_flows (f)
+```
+
+- Adds flows .bold[A] <i class="fas  fa-long-arrow-alt-right "></i> .bold[B] to .bold[B]
+  <i class="fas  fa-long-arrow-alt-right "></i> .bold[A]
+- Removes one of the two edges
+- Also removes all edges with zero flow
+
+--
+
+
+```r
+dim (f); dim (fm)
+nrow (fm) / nrow (f)
+```
+
+```
+## [1] 887091     14
+```
+
+```
+## [1] 156638     14
+```
+
+```
+## [1] 0.1765749
+```
+
+
+---
+
+# flows 
+
+
+```r
+head (fm)
+```
+
+```
+##    geom_num edge_id    from_id from_lon from_lat      to_id   to_lon
+## 5         2       5    7731852 9.889712 53.47322    8078287 9.891122
+## 7         2       7    8078287 9.891122 53.47315  387428409 9.892537
+## 9         2       9  387428409 9.892537 53.47309 1658700352 9.894011
+## 17        3      17    8078291 9.891285 53.47390 1256626185 9.891126
+## 19        3      19 1256626185 9.891126 53.47320    8078287 9.891122
+## 33        5      33   10377756 9.889860 53.47446   10377747 9.889818
+##      to_lat           d  d_weighted     highway  way_id flow
+## 5  53.47315 0.093767088 0.104185653 residential 1880371 4117
+## 7  53.47309 0.093984750 0.104427500 residential 1880371 4178
+## 9  53.47301 0.098038827 0.108932030 residential 1880371 4178
+## 17 53.47320 0.078888045 0.087653384 residential 1880372   61
+## 19 53.47315 0.005215517 0.005795019 residential 1880372   61
+## 33 53.47398 0.053391524 0.059323916 residential 1880374   61
+```
+
+
+---
+class: center, inverse
+
+.fonthuge[
+mapdeck &lt;br&gt; time!&lt;br&gt;
+<i class="fab  fa-uber fa-spin "></i>
+]
+---
+
+# flows
+
+
+```r
+library (mapdeck)
+set_token (Sys.getenv ("MAPBOX_TOKEN"))
+fm$flow &lt;- 20 * fm$flow / max (fm$flow)
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %&gt;%
+    add_line (data = fm,
+              origin = c("from_lon", "from_lat"),
+              destination = c("to_lon", "to_lat"),
+              stroke_colour = "flow",
+              stroke_width = "flow",
+              palette = colour_palettes("colorRamp")[7])
+```
+
+---
+
+# realistic flows
+
+* Where do people walk in Hamburg in order to use public transport?
+
+--
+
+* Need to know about public transport
+* [`transparenz.hamburg.de`](http://suche.transparenz.hamburg.de/)
+
+* GTFS = General Transit Feed Specification ([gtfs.org](https://gtfs.org))
+
+
+---
+
+# realistic flows - Read in GTFS data
+
+
+```r
+filename &lt;- "data/gtfs-hvv.zip"
+flist &lt;- utils::unzip (filename, list = TRUE)
+for (f in flist$Name)
+{
+    fout &lt;- data.table::fread (cmd = paste0 ("unzip -p \"",
+                                             filename,
+                                             "\" \"", f, "\""),
+                               integer64 = "character",
+                               showProgress = FALSE)
+    assign (gsub (".txt", "", basename (f)), fout)
+}
+```
+
+---
+
+# realistic flows - Count numbers of services at each stop
+
+
+```r
+library (dplyr)
+stop_counts &lt;- stop_times %&gt;%
+    group_by (stop_id) %&gt;%
+    summarise (total = length (stop_id)) %&gt;%
+    right_join (stops, by = "stop_id") %&gt;%
+    filter (!is.na (total)) %&gt;%
+    select (stop_id, stop_lat, stop_lon, total) %&gt;%
+    as.data.frame ()
+head (stop_counts)
+```
+
+```
+##        stop_id stop_lat stop_lon total
+## 1 000000100001 53.55155 10.00432  2404
+## 2 000000100009 53.55220 10.01129  1608
+## 3 000000100011 53.55338 10.02415   616
+## 4 000000100012 53.55471 10.03446     7
+## 5 000000100018 53.55461 10.06113   183
+## 6 000000100021 53.55562 10.04142   454
+```
+
+---
+
+# realistic flows
+
+* we know where all stops are
+
+* and we have estimates of their "importance"
+
+--
+
+* model pedestrians "dispersing" away from each stop
+
+---
+
+# realistic flows
+
+
+```r
+net &lt;- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v &lt;- dodgr_vertices (net)
+n &lt;- 1000
+pts &lt;- sample (v$id, size = n)
+*f &lt;- dodgr_flows_aggregate (net, from = pts, to = pts,
+*                           flows = array (1, dim = c (n, n))
+```
+
+--
+
+
+```r
+*f &lt;- dodgr_flows_disperse (net, from = pts, dens = rep (1, n))
+```
+
+---
+
+# realistic flows
+
+
+```r
+head (stop_counts)
+```
+
+```
+##        stop_id stop_lat stop_lon total
+## 1 000000100001 53.55155 10.00432  2404
+## 2 000000100009 53.55220 10.01129  1608
+## 3 000000100011 53.55338 10.02415   616
+## 4 000000100012 53.55471 10.03446     7
+## 5 000000100018 53.55461 10.06113   183
+## 6 000000100021 53.55562 10.04142   454
+```
+
+```r
+nrow (stop_counts)
+```
+
+```
+## [1] 16555
+```
+
+Let's take the 1,000 most important stops
+
+```r
+cutoff &lt;- sort (stop_counts$total, decreasing = TRUE) [1000]
+stop_counts &lt;- stop_counts [stop_counts$total &gt;= cutoff, ]
+```
+
+---
+
+# realistic flows
+
+Get our points to disperse flows from:
+
+```r
+pts &lt;- match_pts_to_graph (v, stop_counts [, 2:3],
+                           connected = TRUE)
+```
+And the densities of the flows from those points:
+
+```r
+dens &lt;- stop_counts$total
+```
+
+--
+
+Then disperse the flows from those points:
+
+```r
+*f &lt;- dodgr_flows_disperse (net, from = v$id [pts],
+*                          dens = dens, k = 1)
+```
+
+---
+background-image: url(img/fortune-beach.png)
+---
+
+# realistic flows
+
+
+```r
+head (stop_counts)
+```
+
+```
+##        stop_id stop_lat stop_lon total
+## 1 000000100001 53.55155 10.00432  2404
+## 2 000000100009 53.55220 10.01129  1608
+## 3 000000100011 53.55338 10.02415   616
+## 6 000000100021 53.55562 10.04142   454
+## 8 000000100025 53.55344 10.02327   606
+## 9 000000100028 53.55229 10.01034  1626
+```
+
+
+---
+
+# realistic flows
+
+
+```r
+net &lt;- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v &lt;- dodgr_vertices (net)
+pts &lt;- match_pts_to_graph (v, stop_counts [, 2:3],
+                           connected = TRUE)
+dens &lt;- stop_counts$total
+*f &lt;- dodgr_flows_disperse (net, from = v$id [pts],
+*                          dens = dens, k = 1)
+```
+
+---
+
+# realistic flows
+
+
+```r
+fm &lt;- merge_directed_flows (f)
+fm$flow &lt;- 10 * fm$flow / max (fm$flow)
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %&gt;%
+    add_line (data = fm,
+              origin = c("from_lon", "from_lat"),
+              destination = c("to_lon", "to_lat"),
+              stroke_colour = "flow",
+              stroke_width = "flow",
+              palette = colour_palettes("colorRamp")[7])
+```
+
+---
+class: center, top, inverse
+.fontBIG[
+Popquiz: &lt;br&gt;&lt;br&gt;Where in Hamburg are pedestrians most exposed to air pollution?
+]
+
+---
+
+# Where in Hamburg are pedestrians most exposed to air pollution?
+
+- Air pollution comes from automotive vehicles, so need to know where they
+  travel
+
+- Generate another flow layer
+
+--
+
+- Implement model to simulate dispersal to adjacent ways including foot paths
+
+- Quantify exposure as pedestrian flows times pollutant concentrations
+
+---
+
+.left-column[
+<i class="fab  fa-github fa-2x fa-spin "></i> atfutures
+
+<i class="fab  fa-github fa-2x fa-spin "></i> moveability
+
+<i class="fab  fa-github fa-2x fa-spin "></i> mpadge
+
+<i class="fab  fa-github fa-2x fa-spin "></i> ropensci
+]
+
+.right-column[
+<i class="fab  fa-twitter fa-2x fa-spin "></i> bikesRdata
+
+<i class="fas  fa-envelope "></i> .small[mark.padgham@email.com]&lt;br&gt;&lt;br&gt;
+
+<i class="ion  ion-ios-world-outline ion-5x "></i> atfutures.github.io
+
+<i class="ion  ion-ios-world-outline ion-5x "></i> moveability.city
+]
+
+
+.box-bottom[
+slides and full code at &lt;br&gt;
+[https://github.com/mpadge/hamburg-user-feb2019](https://github.com/mpadge/hamburg-user-feb2019)
+]
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
