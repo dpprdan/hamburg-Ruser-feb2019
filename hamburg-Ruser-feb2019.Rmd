@@ -1,0 +1,1262 @@
+---
+title: "Using R to help plan the <br> future of transport"
+subtitle: "Hamburg R Users Group"
+author: "Mark Padgham <br> Active Transport Futures"
+date: "Wednesday 13th February, 2019"
+output:
+      xaringan::moon_reader:
+            yolo:
+                        img: img/fortune-beach.png
+                        times: 2
+            lib_dir: libs
+            css: xaringan-themer.css
+            nature:
+                  highlightStyle: github
+                  highlightLines: true
+                  countIncrementalSlides: false
+---
+
+```{r xaringan, include = FALSE}
+library(xaringanthemer)
+source ("myxaringantheme.R")
+```
+```{r load, include = FALSE, eval = FALSE}
+source ("data-script.R")
+hamburg <- readRDS ("data/osm-hamburg.Rds")
+net <- f <- readRDS ("data/dodgr-flows-hh.Rds")
+net$flow <- NULL
+```
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)# suppress version num in subdir name
+
+knitr::opts_chunk$set(cache = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+class: left, middle, inverse
+
+
+.left-column[
+`r icon::fa_github(size = 2, animate = "spin")` atfutures
+
+`r icon::fa_github(size = 2, animate = "spin")` moveability
+
+`r icon::fa_github(size = 2, animate = "spin")` mpadge
+
+`r icon::fa_github(size = 2, animate = "spin")` ropensci
+]
+
+.right-column[
+`r icon::fa_twitter(size = 2, animate = "spin")` bikesRdata
+
+`r icon::fa_envelope(size = 1)` .small[mark.padgham@email.com]<br><br>
+
+`r icon::ii_ios_world_outline(size = 5)` atfutures.github.io
+
+`r icon::ii_ios_world_outline(size = 5)` moveability.city
+]
+
+
+.box-bottom[
+slides at <br>
+[https://github.com/mpadge/hamburg-Ruser-feb2019](https://github.com/mpadge/hamburg-Ruser-feb2019)
+]
+
+
+---
+class: left, top, inverse
+
+### Primary Collaborators
+
+.small[
+- Robin Lovelace (@robinlovelace)
+- Layik Hama (@layik)
+- Mike Sumner (@mdsumner)
+- Andreas Petutschnig (@karpfen)
+- Andrew Smith (@virgesmith)
+  ]
+
+### Additional `r icon::fa_github(animate = "spin")` Contributions From ... 
+
+.small[
+.left-column[
+- RichardEllison
+- tbuckl
+- skcott
+- hrbrmstr
+- maelle
+- mdsumner
+- mem48
+- jimshady
+- angela-li
+  ]
+
+.right-column[
+- graceli8
+- arfon
+- jimhester
+- tazinho
+- karthik
+- fzenoni
+- mhenderson
+- patperu
+- eyesofbambi
+  ]
+  ]
+
+---
+class: left, top, inverse
+
+# Active Transport Futures
+
+
+
+---
+background-image: url(img/amsterdam-cars.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+class: left, top, inverse
+
+# Active Transport Futures
+
+---
+class: left, top, inverse
+background-image: url(img/ms-promenade.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+# Active Transport Futures
+
+
+---
+class: left, top, inverse
+background-image: url(img/kl-bike-path.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+# [Active Transport Futures](http://www.who.int/sustainable-development/cities/en/)
+
+---
+
+# Active Transport Futures
+
+For a given city:
+
+- Collate data on patterns of urban mobility
+- Collate data on transport networks <br> (road, pedestrian, public transport)
+- Analyse "flows" throughout the network(s)
+- Collate data on (spatial patterns of) air pollution
+- Analyse dynamic interactions between movement, air pollution, and health
+- Develop, compare, contrast scenarios for ameliorating negative effects while
+  enhancing positive effects
+- [Health Economic Assessment Tool (HEAT)](https://heatwalkingcycling.org/#homepage)
+
+---
+
+# Active Transport Futures
+
+For a given city:
+
+- ~~Collate data on patterns of urban mobility~~
+- <span style="color: #ff6900;">Collate data on transport networks <br> (road, pedestrian, public transport)</span>
+- <span style="color: #ff6900;">Analyse "flows" throughout the network(s)</span>
+- ~~Collate data on (spatial patterns of) air pollution~~
+- <span style="color: #ff6900;">Analyse dynamic interactions between movement, air pollution</span>~~, and health~~
+- ~~Develop, compare, contrast scenarios for ameliorating negative effects while
+  enhancing positive effects~~
+- ~~[Health Economic Assessment Tool (HEAT)](https://heatwalkingcycling.org/#homepage)~~
+
+---
+
+# Active Transport Futures
+
+## Software: R Packages
+
+- `osmdata` (Open Street Map data)
+- `dodgr` (Distances On Directed GRaphs)
+- `stplanr` (Sustainable Transport PLANning in R)
+- `osmplotr` (OSM plotting routines)
+- `geoplumber` (Turbo-charged web server for geo data)
+- `bikedata` (Data from public hire bicycles)
+- `spatialcluster`
+- `gtfs-router` (Public transport GTFS routing)
+- ... plus lots more
+
+---
+
+# Active Transport Futures
+
+## Software: R Packages
+
+- `osmdata` (Open Street Map data)
+- `dodgr` (Distances On Directed GRaphs)
+- ~~`stplanr` (Sustainable Transport PLANning in R)~~
+- ~~`osmplotr` (OSM plotting routines)~~
+- ~~`geoplumber` (Turbo-charged web server for geo data)~~
+- ~~`bikedata` (Data from public hire bicycles)~~
+- ~~`spatialcluster`~~
+- ~~`gtfs-router` (Public transport GTFS routing)~~
+- ... plus lots more
+
+---
+class: left, top
+
+# The osmdata package
+
+OSM = Open Street Map
+
+- CRAN
+- `r icon::fa_github(size = 1, animate = "spin")` `ropensci/osmdata`
+- Several mentions on
+  [OSM wiki](https://wiki.openstreetmap.org/wiki/OSM_Scientific_Tools)
+
+--
+
+## Why OSM data?
+
+---
+class: center, top, inverse
+.fontBIG[
+Popquiz: <br><br>What is the least mapped country on the planet?
+]
+
+---
+class: center, middle, inverse
+background-image: url(img/osm-north-korea.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-bing.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-google.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-google2.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+class: center, middle, inverse
+background-image: url(img/anju-osm.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+
+# The osmdata package
+
+- CRAN
+- `r icon::fa_github(size = 1, animate = "spin")` `ropensci/osmdata`
+- Several mentions on
+  [OSM wiki](https://wiki.openstreetmap.org/wiki/OSM_Scientific_Tools)
+
+## Why OSM data?
+
+--
+
+Because Open Street Map is the most comprehensive street atlas humanity has ever
+created.
+
+## How?
+
+`osmdata` uses the `overpass` server to retrieve data
+
+
+---
+
+# The osmdata package
+
+```{r opq1}
+library (osmdata)
+opq ("hamburg de")
+```
+
+---
+
+
+# The osmdata package
+
+```{r add-osm-ft}
+library (osmdata)
+opq ("hamburg de") %>%
+    add_osm_feature (key = "highway")
+```
+
+---
+
+# The osmdata package
+
+```{r osmdata-sf, eval = FALSE}
+library (osmdata)
+opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+```
+```{r osmdata-sf-fakey, echo = FALSE, message = TRUE}
+message ("Object of class 'osmdata' with:\n",
+"                 $bbox : 51.8401448,7.4737853,52.0600251,7.7743634\n",
+"        $overpass_call : The call submitted to the overpass API\n",
+"                 $meta : metadata including timestamp and version numbers\n",
+"           $osm_points : 'sf' Simple Features Collection with 440165 points\n",
+"            $osm_lines : 'sf' Simple Features Collection with 115161 linestrings\n",
+"         $osm_polygons : 'sf' Simple Features Collection with 2257 polygons\n",
+"       $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings\n",
+"    $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons")
+```
+
+
+---
+
+# The osmdata package
+
+```{r osmdata-sf2, eval = FALSE}
+library (osmdata)
+opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+```
+
+- `opq` `r icon::fa_long_arrow_alt_right()` .bold[WHERE]
+- `add_osm_feature` `r icon::fa_long_arrow_alt_right()` .bold[WHAT]
+- `osmdata_sf` `r icon::fa_long_arrow_alt_right()` .bold[HOW]
+
+---
+
+# The osmdata package - Spatial Formats
+
+```{r osmdata-sf3, eval = FALSE}
+library (osmdata)
+opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+```
+
+- `osmdata_sf` `r icon::fa_long_arrow_alt_right()` .bold[Simple Features]
+
+---
+
+# The osmdata package - Spatial Formats
+
+```{r osmdata-pbf, eval = FALSE}
+library (osmdata)
+opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_xml (file = "hamburg.osm")
+```
+
+- `osmdata_sf` `r icon::fa_long_arrow_alt_right()` .bold[Simple Features]
+- `osmdata_sp` `r icon::fa_long_arrow_alt_right()` .bold[R Spatial]
+- `osmdata_sc` `r icon::fa_long_arrow_alt_right()` .bold[Silicate (Simplicial Complex)]
+- `osmdata_xml` `r icon::fa_long_arrow_alt_right()` .bold[XML / OSM]
+- `osmdata_pbf` `r icon::fa_long_arrow_alt_right()` .bold[PBF (Protocol Buffer Format)]
+
+---
+
+# The osmdata package
+
+```{r osmdata_sf2, eval = FALSE, message = TRUE}
+hamburg <- opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+hamburg
+```
+```{r osmdata-sf-fakey2, echo = FALSE, message = TRUE}
+message ("Object of class 'osmdata' with:\n",
+"                 $bbox : 51.8401448,7.4737853,52.0600251,7.7743634\n",
+"        $overpass_call : The call submitted to the overpass API\n",
+"                 $meta : metadata including timestamp and version numbers\n",
+"           $osm_points : 'sf' Simple Features Collection with 440165 points\n",
+"            $osm_lines : 'sf' Simple Features Collection with 115161 linestrings\n",
+"         $osm_polygons : 'sf' Simple Features Collection with 2257 polygons\n",
+"       $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings\n",
+"    $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons")
+```
+---
+
+# The osmdata package - Visualisation
+
+```{r plot, eval = FALSE}
+hamburg <- opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+plot (hamburg)
+```
+```{r error, echo = FALSE, message = TRUE}
+message ("Error in xy.coords(x, y, xlabel, ylabel, log) :\n",
+"  'x' is a list, but does not have components 'x' and 'y'")
+```
+
+---
+
+# The osmdata package - Visualisation
+
+```{r osmdata_sf3, eval = FALSE, message = TRUE}
+hamburg
+```
+```{r osmdata-sf-fakey3, echo = FALSE, message = TRUE}
+message ("Object of class 'osmdata' with:\n",
+"                 $bbox : 51.8401448,7.4737853,52.0600251,7.7743634\n",
+"        $overpass_call : The call submitted to the overpass API\n",
+"                 $meta : metadata including timestamp and version numbers\n",
+"           $osm_points : 'sf' Simple Features Collection with 440165 points\n",
+"            $osm_lines : 'sf' Simple Features Collection with 115161 linestrings\n",
+"         $osm_polygons : 'sf' Simple Features Collection with 2257 polygons\n",
+"       $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings\n",
+"    $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons")
+```
+
+---
+
+# The osmdata package - Visualisation
+
+```{r osmdata_sf4, eval = FALSE, message = TRUE}
+hamburg
+```
+```{r osmdata-sf-fakey4, echo = FALSE, message = TRUE}
+message ("Object of class 'osmdata' with:\n",
+"                 $bbox : 51.8401448,7.4737853,52.0600251,7.7743634\n",
+"        $overpass_call : The call submitted to the overpass API\n",
+"                 $meta : metadata including timestamp and version numbers\n",
+"           $osm_points : 'sf' Simple Features Collection with 440165 points\n",
+"            $osm_lines : 'sf' Simple Features Collection with 115161 linestrings\n",
+"         $osm_polygons : 'sf' Simple Features Collection with 2257 polygons\n",
+"       $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings\n",
+"    $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons")
+```
+```{r osmdata_sf5, eval = FALSE, message = TRUE}
+dim (hamburg$osm_lines)
+```
+```{r, echo = FALSE, message = TRUE}
+c (115161, 682)
+```
+<span style="color: #ff6900;font-weight: bold;">
+$\rightarrow$ The lines have 681 fields (plus 1 geometry column)
+</span>
+
+---
+
+# The osmdata package - Visualisation
+
+```{r osmdata-sf6, eval = FALSE}
+names (hamburg$osm_lines)
+```
+```{r osmdata-names, eval = TRUE, echo = FALSE, message = TRUE}
+nms <- c ("osm_id", "name", "Cranzer", "FIXME", "Raststätte",
+          "TMC.cid_58.tabcd_1.Class", "TMC.cid_58.tabcd_1.Direction",
+          "TMC.cid_58.tabcd_1.LCLversion", "TMC.cid_58.tabcd_1.LocationCode",
+          "TMC.cid_58.tabcd_1.NextLocationCode",
+          "TMC.cid_58.tabcd_1.PrevLocationCode", "abandoned.highway",
+          "abutters", "access", "access.backward", "access.conditional",
+          "access.customer", "access.goods", "access.lanes",
+          "access.lanes.backward", "access.lanes.forward",
+          "access.motor_vehicle.conditional", "access.note", "access.source",
+          "access.vehicle", "access.vehicles", "addr.city", "addr.country",
+          "addr.housenumber", "addr.postcode", "addr.street", "addr.suburb",
+          "addr.unit", "advertising", "agricultural", "alt_name", "amenity",
+          "arcade.left", "arcade.right", "architect", "area", "area.highway",
+          "artist_name", "artwork_type", "barrier", "bdouble", "bench",
+          "bicycle", "bicycle.backward", "bicycle.class", "bicycle.conditional",
+          "bicycle.footway", "bicycle.forward", "bicycle.lanes", "bicycle.left",
+          "bicycle.oneway", "bicycle.right", "bicycle_road", "bin", "boundary",
+          "brand", "bridge", "bridge.movable", "bridge.name",
+          "bridge.structure", "bridge_ref", "bridleway", "building",
+          "building.colour", "building.height", "building.levels",
+          "building.material", "building.part", "building_status",
+          "buildingpart", "bus", "bus.lanes", "bus.lanes.backward",
+          "bus.lanes.forward", "button_operated", "capacity", "capacity.shower",
+          "capacity.smoker_free", "capacity.toilets", "capacity.truck",
+          "capacity.truck_diesel_pumps", "car", "cb_communication_shop",
+          "change.lanes", "change.lanes.backward", "change.lanes.forward",
+          "check_date", "class.bicycle", "colonnade.left", "colonnade.right",
+          "colour", "comment", "communication.mobile_phone",
+          "communication.radio", "communication.television", "condition",
+          "construction", "construction.cycleway", "construction_year",
+          "contact.fax", "contact.phone", "conveying", "copier", "count",
+          "covered", "created_by", "crossing", "crossing_ref", "cuisine",
+          "cutting", "cycle", "cycleway", "cycleway.backward",
+          "cycleway.bicycle", "cycleway.both", "cycleway.both.bicycle",
+          "cycleway.both.oneway", "cycleway.both.segregated",
+          "cycleway.both.smoothness", "cycleway.both.surface",
+          "cycleway.both.traffic_sign", "cycleway.both.width",
+          "cycleway.bth.bicycle", "cycleway.foot", "cycleway.forward",
+          "cycleway.lane", "cycleway.left", "cycleway.left.bicycle",
+          "cycleway.left.foot", "cycleway.left.lane", "cycleway.left.oneway",
+          "cycleway.left.segregated", "cycleway.left.smoothness",
+          "cycleway.left.surface", "cycleway.left.surface.colour",
+          "cycleway.left.tactile_paving", "cycleway.left.traffic_sign",
+          "cycleway.left.width", "cycleway.note", "cycleway.oneway",
+          "cycleway.right", "cycleway.right.bicycle", "cycleway.right.foot",
+          "cycleway.right.lane", "cycleway.right.oneway",
+          "cycleway.right.segrated", "cycleway.right.segregated",
+          "cycleway.right.smoothness", "cycleway.right.surface",
+          "cycleway.right.surface.colour", "cycleway.right.tactile_paving",
+          "cycleway.right.traffic_sign", "cycleway.right.width",
+          "cycleway.right_1", "cycleway.segregated", "cycleway.smoothness",
+          "cycleway.surface", "cycleway.width", "day_off", "day_on", "deck",
+          "delivery", "delivery.conditional", "denomination", "depth",
+          "description", "description.bicycle", "destination",
+          "destination.backward", "destination.colour", "destination.forward",
+          "destination.lanes", "destination.lanes.backward",
+          "destination.lanes.forward", "destination.ref",
+          "destination.ref.backward", "destination.ref.forward",
+          "destination.ref.lanes", "destination.ref.lanes.backward",
+          "destination.ref.lanes.forward", "destination.ref.to",
+          "destination.ref.to.backward", "destination.ref.to.forward",
+          "destination.ref.to.lanes", "destination.symbol",
+          "destination.symbol.forward", "destination.symbol.lanes",
+          "destination.to", "diameter", "direction", "disabled",
+          "disused.highway", "disused.railway", "disused.surface", "dog",
+          "dog.free.wheel", "dogs", "drive_through", "driveway", "dsa.criteria",
+          "ele", "elevator", "embankment", "emergency", "escalator",
+          "escalator_dir", "est_width", "fast_food", "fax", "fee", "fence",
+          "ferry", "filter", "fixme", "fixme.de", "floating", "floor", "foot",
+          "foot.backward", "foot.conditional", "footway",
+          "footway.right.bicycle", "footway.surface", "footway.width", "ford",
+          "forestry")
+print (nms)
+```
+
+---
+
+# The osmdata package - Visualisation
+
+```{r osmdata-sf7, eval = FALSE}
+names (hamburg$osm_lines) [100:200]
+```
+```{r osmdata-names2, eval = TRUE, echo = FALSE, message = TRUE}
+print (nms [100:length (nms)])
+```
+
+---
+
+# The osmdata package - Visualisation
+
+```{r plot2, eval = FALSE}
+hamburg <- opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+plot (hamburg)
+```
+```{r error2, echo = FALSE, message = TRUE}
+message ("Error in xy.coords(x, y, xlabel, ylabel, log) :\n",
+"  'x' is a list, but does not have components 'x' and 'y'")
+```
+```{r plot3, eval = FALSE}
+plot (hamburg$osm_lines)
+```
+<span style="color: #ff6900;font-weight: bold;">
+... PLEASE DON'T!
+</span>
+
+
+---
+class: center, inverse
+
+.fonthuge[
+[mapdeck](https://deck.gl) <br> time!<br>
+`r icon::fa_uber(animate = "spin")`
+]
+
+---
+
+# mapdeck
+
+* `deck.gl` is a javascript library developed by Uber
+* `mapdeck` is an R wrapper developed by @symbolixAU
+
+---
+
+# mapdeck
+
+```{r mapdeck, eval = FALSE}
+library (mapdeck)
+set_token (Sys.getenv ("MAPBOX_TOKEN"))
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %>%
+    add_path (data = hamburg$osm_lines,
+              stroke_width = 1,
+              stroke_colour = "#4444dd",
+              stroke_opacity = 80)
+```
+
+
+---
+
+
+background-image: url(img/hh-lines-mapdeck.png)
+background-size: contain 
+background-position: 50% 50%
+class: center, top, inverse
+
+--
+
+.fonthuge[
+115,000 lines!
+]
+
+
+---
+
+# osmdata
+
+- The fastest and easiest method in any language for extracting OSM data
+- Only software that allows OSM data to be extracted in 3 simple lines:
+
+```{r, eval = FALSE}
+hamburg <- opq ("hamburg de") %>%          # WHERE
+    add_osm_feature (key = "highway") %>%  # WHAT
+    osmdata_sf (quiet = FALSE)             # HOW
+```
+
+- Extremely flexible; can extract any form of OSM data.
+
+```{r, eval = FALSE}
+hamburg <- opq ("hamburg de") %>%
+    add_osm_feature (key = "building") %>%
+    osmdata_sf (quiet = FALSE)
+```
+- For more information, see [the website](https://github.com/ropensci/osmdata)
+
+---
+class: top, center, inverse
+
+.fonthuge[
+    **dodgr**<br>
+    ]
+.fontBIG[
+    Distances on Directed GRaphs
+]
+
+---
+class: top, center, inverse
+
+.fonthuge[
+    **dodgr**<br>
+    ]
+
+* CRAN <br><br>
+* `r icon::fa_github(size = 4, animate = "spin", colour = "#ffcc00")` [`ATFutures/dodgr`](https://github.com/atfutures/dodgr)
+
+---
+
+# dodgr
+
+Get all OSM highway data for Hamburg
+
+```{r osm-hamburg, eval = FALSE}
+hamburg <- opq ("hamburg de") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sf ()
+hamburg
+```
+```{r load-hh-fakey, echo = FALSE, message = TRUE}
+message ("Object of class 'osmdata' with:\n",
+"                 $bbox : 51.8401448,7.4737853,52.0600251,7.7743634\n",
+"        $overpass_call : The call submitted to the overpass API\n",
+"                 $meta : metadata including timestamp and version numbers\n",
+"           $osm_points : 'sf' Simple Features Collection with 440165 points\n",
+"            $osm_lines : 'sf' Simple Features Collection with 115161 linestrings\n",
+"         $osm_polygons : 'sf' Simple Features Collection with 2257 polygons\n",
+"       $osm_multilines : 'sf' Simple Features Collection with 2 multilinestrings\n",
+"    $osm_multipolygons : 'sf' Simple Features Collection with 8 multipolygons")
+```
+
+
+---
+
+# dodgr
+
+Convert Hamburg OSM data to `dodgr` format
+
+```{r weight-streetnet-hh1, eval = FALSE, message = TRUE}
+hamburg <- osm_poly2line (hamburg) # osmdata function
+```
+
+---
+
+# dodgr
+
+Convert Hamburg OSM data to `dodgr` format
+
+```{r weight-streetnet-hh3, eval = FALSE, message = TRUE}
+hamburg <- osm_poly2line (hamburg) # osmdata function
+library (dodgr)
+net <- weight_streetnet (hamburg$osm_lines, #<<
+                         wt_profile = "foot") #<<
+dim (net); head (net)
+```
+```{r weight-streetnet-hh-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+c (887091, 13)
+net <- data.frame ("geom_num" = c (1, 1, 1, 1, 2, 2),
+                   "edge_ed" = 1:6,
+                   "from_id" = c ("10210552", "277783046", "277783046",
+                                  "5186817684", "7731852", "8078287"),
+                   "from_lon" = c (9.914535, 9.915067, 9.915067, 9.915529,
+                                   9.889712, 9.891122),
+                   "from_lat" = c (53.47043, 53.47044, 53.47044, 53.47045,
+                                   53.47322, 53.47315),
+                   "to_id" = c ("277783046", "10210552", "5186817684",
+                                "277783046", "8078287", "7731852"),
+                   "to_lon" = c (9.915067, 9.914535, 9.915529, 9.915067,
+                                 9.891122, 9.889712),
+                   "to_lat" = c (53.47044, 53.47043, 53.47045, 53.47044,
+                                 53.47315, 53.47322),
+                   "d" = c (0.03523152, 0.03523152, 0.03066652, 0.03066652,
+                            0.09376709, 0.09376709),
+                   "d_weighted" = c (0.07046304, 0.07046304, 0.06133305,
+                                     0.06133305, 0.10418565, 0.10418565),
+                   "highway" = c ("primary", "primary", "primary", "primary",
+                                  "residential", "residential"),
+                   "way_id" = c (rep ("1978", 4), rep ("1880371", 2)),
+                   "component" = rep (1, 6))
+net
+```
+
+---
+
+# dodgr distances
+
+
+```{r hh-components, eval = FALSE, message = TRUE}
+dim (net)
+head (table (net$component), 10)
+```
+```{r hh-components-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+c (887091, 13)
+x <- c (875829, 364, 300, 244, 208, 202, 158, 134, 124, 124)
+names (x) <- 1:10
+x
+```
+
+
+---
+
+# dodgr distances
+
+Calculate walking distances between random points.
+
+```{r dodgr-vertices2, eval = FALSE}
+v <- dodgr_vertices (net)
+dim (v); head (v)
+```
+```{r dodgr-vertices2-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+c (415543, 5)
+v <- data.frame ("id" = c ("10210552", "277783046", "5186817684", "7731852",
+                           "8078287", "387428409"),
+                 "x" = c (9.914535, 9.915067, 9.915529, 9.889712, 9.891122,
+                          9.892537),
+                 "y" = c (53.47043, 53.47044, 53.47045, 53.47322, 53.47315,
+                          53.47309),
+                 "component" = rep (1, 6),
+                 "n" = 0:5)
+v
+```
+```{r vert-sample, eval = FALSE}
+pts <- sample (v$id, size = 1000)
+```
+
+---
+
+# dodgr distances
+
+```{r dodgr-dists-help-fakey, echo = TRUE, eval = FALSE}
+?dodgr_dists
+```
+```{r dodgr-dists-help, echo = FALSE, message = TRUE}
+library (dodgr)
+helpfile <- utils:::.getHelpFile (help ("dodgr_dists"))
+hs <- capture.output (tools:::Rd2txt(helpfile))
+#hs <- capture.output (tools:::prepare_Rd(helpfile))
+cat(hs, sep="\n")
+```
+
+---
+
+# dodgr distances
+
+Calculate walking distances between random points.
+
+```{r dodgr-vertices3, eval = FALSE}
+v <- dodgr_vertices (net)
+dim (v); head (v)
+```
+```{r dodgr-vertices3-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+c (415543, 5)
+v <- data.frame ("id" = c ("10210552", "277783046", "5186817684", "7731852",
+                           "8078287", "387428409"),
+                 "x" = c (9.914535, 9.915067, 9.915529, 9.889712, 9.891122,
+                          9.892537),
+                 "y" = c (53.47043, 53.47044, 53.47045, 53.47322, 53.47315,
+                          53.47309),
+                 "component" = rep (1, 6),
+                 "n" = 0:5)
+v
+```
+```{r vert-sample2, eval = FALSE}
+pts <- sample (v$id, size = 1000)
+```
+
+---
+
+# dodgr distances
+
+Calculate walking distances between random points.
+
+```{r dodgr-vertices4, eval = FALSE}
+net <- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v <- dodgr_vertices (net)
+pts <- sample (v$id, size = 1000)
+```
+
+---
+
+# dodgr distances
+
+```{r dodgr-dists1-copy, eval = FALSE}
+net <- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v <- dodgr_vertices (net)
+pts <- sample (v$id, size = 1000)
+
+system.time (
+             d <- dodgr_dists (net, from = pts, to = pts) #<<
+             )
+```
+```{r dodgr-dists1-copy-fakey, echo = FALSE, message = TRUE}
+message ("   user  system elapsed\n",
+"156.896   0.463  21.503")
+```
+
+--
+
+
+```{r dodgr-dists-result1, eval = FALSE}
+class (d); dim (d); range (d); range (d, na.rm = TRUE)
+```
+```{r dodgr-dists-result1-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+message ("[1] matrix\n",    # explicit print coz otherwise output inserts
+         "[1] 1000 1000\n", # blank lines that no longer fit on screen
+         "[1] NA NA\n",
+         "[1] 0.00000 48.94063")
+```
+
+---
+
+# dodgr distances
+
+```{r dodgr-dists2, eval = FALSE}
+d <- dodgr_dists (net, from = pts, to = pts)
+```
+```{r dodgr-dists-result2, eval = FALSE}
+class (d); dim (d); range (d); range (d, na.rm = TRUE)
+```
+```{r dodgr-dists-result2-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+message ("[1] matrix\n",    # explicit print coz otherwise output inserts
+         "[1] 1000 1000\n", # blank lines that no longer fit on screen
+         "[1] NA NA\n",
+         "[1] 0.00000 48.94063")
+```
+
+```{r dodgr-dists-result3, eval = FALSE}
+length (which (is.na (d))) / length (d)
+```
+```{r dodgr-dists-result3-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+0.05324
+```
+
+---
+
+# dodgr distances
+
+```{r dodgr-dists1, eval = FALSE}
+system.time (
+             d <- dodgr_dists (net, from = pts, to = pts) #<<
+             )
+```
+```{r dodgr-dists1-fakey, echo = FALSE, message = TRUE}
+message ("   user  system elapsed\n",
+"156.896   0.463  21.503")
+```
+
+- Those 1,000,000 distances could have been calculated with the google API
+- And that would cost `1e6 * 0.004 = $US4,000`
+- $US 4,000 for 20 seconds of calculation!
+- To date, `dodgr` provides one of the only .bold[free] ways to perform such
+  calculations, and is also entirely .bold[open source].
+
+---
+class: left, top, inverse
+background-image: url(img/ms-promenade.png)
+background-size: contain 
+background-position: 50% 50%
+background-color: #000000
+
+---
+
+class: inverse, center, top
+
+.fonthuge[
+    ~~distances~~<br><br>
+    flows
+    ]
+
+---
+
+# flows
+
+If one person travels between each of our 1,000,000 pairs of points, how many
+travel on each bit of the network?
+
+```{r, eval = FALSE}
+d <- dodgr_dists (net, from = pts, to = pts)
+```
+```{r dodgr-flows, eval = FALSE}
+flow_mat <- matrix (1, nrow = 1000, ncol = 1000)
+system.time (
+    f <- dodgr_flows_aggregate (net, from = pts, to = pts,  #<<
+                                flows = flow_mat)           #<<
+)
+```
+```{r, eval = FALSE, echo = FALSE}
+saveRDS (f, file = "data/dodgr-flows-aggregate-hh.Rds")
+```
+
+```{r dodgr-flows-fakey, eval = TRUE, echo = FALSE, message = TRUE}
+message ("   user  system elapsed\n",
+"440.107   4.601  61.671")
+```
+
+---
+
+# flows 
+
+```{r dodgr-flows-result-d, eval = FALSE, message = TRUE}
+head (net)
+```
+```{r, echo = FALSE}
+net
+```
+
+
+---
+
+# flows 
+
+```{r dodgr-flows-result, eval = FALSE, message = TRUE}
+head (f)
+```
+```{r, echo = FALSE}
+f <- net
+f$flow <- c (rep (0, 4), 2113, 2004)
+f
+```
+
+---
+
+# flows 
+
+```{r merge-directed-flows, eval = FALSE, message = TRUE}
+fm <- merge_directed_flows (f)
+```
+
+- Adds flows .bold[A] `r icon::fa_long_arrow_alt_right()` .bold[B] to .bold[B]
+  `r icon::fa_long_arrow_alt_right()` .bold[A]
+- Removes one of the two edges
+- Also removes all edges with zero flow
+
+--
+
+```{r merge-directed-flows-result, message = TRUE, eval = FALSE}
+dim (f); dim (fm)
+nrow (fm) / nrow (f)
+```
+```{r merge-directed-fakey, echo = FALSE}
+c (887091, 14); c (156638, 14)
+0.1765749
+```
+
+
+---
+
+# flows 
+
+```{r dodgr-flows-result2, eval = FALSE, message = TRUE}
+head (fm)
+```
+```{r merged-flows, echo = FALSE}
+fm <- data.frame ("geom_num" = c (2, 2, 2, 3, 3, 5),
+                  "edge_id" = c (5, 7, 9, 17, 19, 33),
+                  "from_id" = c ("7731852", "8078287", "387428409", "8078291",
+                                 "1256626185", "10377756"),
+                  "from_lon" = c (9.889712, 9.891122, 9.892537, 9.891285,
+                                  9.891126, 9.889860),
+                  "from_lat" = c (53.47322, 53.47315, 53.47309, 53.47390,
+                                  53.47320, 53.47446),
+                  "to_id" = c ("8078287", "387428409", "1658700352",
+                               "1256626185", "8078287", "10377747"),
+                  "to_lon" = c (9.891122, 9.892537, 9.894011, 9.891126,
+                                9.891122, 9.889818),
+                  "to_lat" = c (53.47315, 53.47309, 53.47301, 53.47320,
+                                53.47315, 53.47398),
+                  "d" = c (0.093767088, 0.093984750, 0.098038827, 0.078888045,
+                           0.005215517, 0.053391524),
+                  "d_weighted" = c (0.104185653, 0.104427500, 0.108932030,
+                                    0.087653384, 0.005795019, 0.059323916),
+                  "highway" = rep ("residential", 6),
+                  "way_id" = c ("1880371", "1880371", "1880371", "1880372",
+                                "1880372", "1880374"),
+                  "flow" = c (4117, 4178, 4178, 61, 61, 61))
+rownames (fm) <- c (5, 7, 9, 17, 19, 33)
+fm
+```
+
+
+---
+class: center, inverse
+
+.fonthuge[
+mapdeck <br> time!<br>
+`r icon::fa_uber(animate = "spin")`
+]
+---
+
+# flows
+
+```{r hh-mapdeck, eval = FALSE}
+library (mapdeck)
+set_token (Sys.getenv ("MAPBOX_TOKEN"))
+fm$flow <- 20 * fm$flow / max (fm$flow)
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %>%
+    add_line (data = fm,
+              origin = c("from_lon", "from_lat"),
+              destination = c("to_lon", "to_lat"),
+              stroke_colour = "flow",
+              stroke_width = "flow",
+              palette = colour_palettes("colorRamp")[7])
+```
+
+---
+
+# realistic flows
+
+* Where do people walk in Hamburg in order to use public transport?
+
+--
+
+* Need to know about public transport
+* [`transparenz.hamburg.de`](http://suche.transparenz.hamburg.de/)
+
+* GTFS = General Transit Feed Specification ([gtfs.org](https://gtfs.org))
+
+
+---
+
+# realistic flows - Read in GTFS data
+
+```{r hvv-gtfs}
+filename <- "data/gtfs-hvv.zip"
+flist <- utils::unzip (filename, list = TRUE)
+for (f in flist$Name)
+{
+    fout <- data.table::fread (cmd = paste0 ("unzip -p \"",
+                                             filename,
+                                             "\" \"", f, "\""),
+                               integer64 = "character",
+                               showProgress = FALSE)
+    assign (gsub (".txt", "", basename (f)), fout)
+}
+```
+
+---
+
+# realistic flows - Count numbers of services at each stop
+
+```{r hvv-stops, message = FALSE}
+library (dplyr)
+stop_counts <- stop_times %>%
+    group_by (stop_id) %>%
+    summarise (total = length (stop_id)) %>%
+    right_join (stops, by = "stop_id") %>%
+    filter (!is.na (total)) %>%
+    select (stop_id, stop_lat, stop_lon, total) %>%
+    as.data.frame ()
+head (stop_counts)
+```
+
+---
+
+# realistic flows
+
+* we know where all stops are
+
+* and we have estimates of their "importance"
+
+--
+
+* model pedestrians "dispersing" away from each stop
+
+---
+
+# realistic flows
+
+```{r dodgr-flows-aggregate, eval = FALSE}
+net <- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v <- dodgr_vertices (net)
+n <- 1000
+pts <- sample (v$id, size = n)
+f <- dodgr_flows_aggregate (net, from = pts, to = pts,  #<<
+                            flows = array (1, dim = c (n, n))           #<<
+```
+
+--
+
+```{r dodgr-flows-disperse, eval = FALSE}
+f <- dodgr_flows_disperse (net, from = pts, dens = rep (1, n)) #<<
+```
+
+---
+
+# realistic flows
+
+```{r stop-counts}
+head (stop_counts)
+nrow (stop_counts)
+```
+
+Let's take the 1,000 most important stops
+```{r stop-cutoff}
+cutoff <- sort (stop_counts$total, decreasing = TRUE) [1000]
+stop_counts <- stop_counts [stop_counts$total >= cutoff, ]
+```
+
+---
+
+# realistic flows
+
+Get our points to disperse flows from:
+```{r stop-counts-to-graph}
+pts <- match_pts_to_graph (v, stop_counts [, 2:3],
+                           connected = TRUE)
+```
+And the densities of the flows from those points:
+```{r stop-densities}
+dens <- stop_counts$total
+```
+
+--
+
+Then disperse the flows from those points:
+```{r stop-disperse, eval = FALSE}
+f <- dodgr_flows_disperse (net, from = v$id [pts], #<<
+                           dens = dens, k = 1) #<<
+```
+
+---
+
+# realistic flows
+
+```{r stop-counts2}
+head (stop_counts)
+```
+
+
+---
+
+# realistic flows
+
+```{r disperse-recap, eval = FALSE}
+net <- weight_streetnet (hamburg$osm_lines,
+                         wt_profile = "foot")
+v <- dodgr_vertices (net)
+pts <- match_pts_to_graph (v, stop_counts [, 2:3],
+                           connected = TRUE)
+dens <- stop_counts$total
+f <- dodgr_flows_disperse (net, from = v$id [pts], #<<
+                           dens = dens, k = 1) #<<
+```
+
+---
+
+# realistic flows
+
+```{r hh-mapdeck-disperse, eval = FALSE}
+fm <- merge_directed_flows (f)
+fm$flow <- 10 * fm$flow / max (fm$flow)
+mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %>%
+    add_line (data = fm,
+              origin = c("from_lon", "from_lat"),
+              destination = c("to_lon", "to_lat"),
+              stroke_colour = "flow",
+              stroke_width = "flow",
+              palette = colour_palettes("colorRamp")[7])
+```
+
+---
+class: center, top, inverse
+.fontBIG[
+Popquiz: <br><br>Where in Hamburg are pedestrians most exposed to air pollution?
+]
+
+---
+
+# Where in Hamburg are pedestrians most exposed to air pollution?
+
+- Air pollution comes from automotive vehicles, so need to know where they
+  travel
+
+- Generate another flow layer
+
+--
+
+- Implement model to simulate dispersal to adjacent ways including foot paths
+
+- Quantify exposure as pedestrian flows times pollutant concentrations
+
+---
+
+.left-column[
+`r icon::fa_github(size = 2, animate = "spin")` atfutures
+
+`r icon::fa_github(size = 2, animate = "spin")` moveability
+
+`r icon::fa_github(size = 2, animate = "spin")` mpadge
+
+`r icon::fa_github(size = 2, animate = "spin")` ropensci
+]
+
+.right-column[
+`r icon::fa_twitter(size = 2, animate = "spin")` bikesRdata
+
+`r icon::fa_envelope(size = 1)` .small[mark.padgham@email.com]<br><br>
+
+`r icon::ii_ios_world_outline(size = 5)` atfutures.github.io
+
+`r icon::ii_ios_world_outline(size = 5)` moveability.city
+]
+
+
+.box-bottom[
+slides and full code at <br>
+[https://github.com/mpadge/hamburg-user-feb2019](https://github.com/mpadge/hamburg-user-feb2019)
+]
+

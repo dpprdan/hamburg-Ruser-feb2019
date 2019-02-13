@@ -39,6 +39,11 @@ if (!file.exists ("data/osm-hamburg.Rds"))
     hamburg <- opq (bbox) %>%
         add_osm_feature (key = "highway") %>%
         osmdata_sf (quiet = FALSE) %>%
+        trim_osmdata (bb_poly = bp_xy)
+
+    hamburg <- opq (bbox) %>%
+        add_osm_feature (key = "highway") %>%
+        osmdata_sf (quiet = FALSE) %>%
         trim_osmdata (bb_poly = bp_xy) %>%
         osm_poly2line ()
     # This file is 1/4 GB!
@@ -55,7 +60,7 @@ if (!file.exists ("data/gtfs-hvv.zip"))
     download.file (u, destfile = "data/gtfs-hvv.zip")
 }
 
-if (!file.exists ("data/dodgr-flows-hh.Rds"))
+if (!file.exists ("data/dodgr-flows-disperse-hh.Rds"))
 {
     # Read the HVV GTFS data containing the timetables for all HVV Verkehr
     filename <- "data/gtfs-hvv.zip"
@@ -90,7 +95,7 @@ if (!file.exists ("data/dodgr-flows-hh.Rds"))
 
     f <- dodgr_flows_disperse (net, from = v$id [pts],
                                dens = stop_counts$total, k = 1)
-    saveRDS (f, file = "data/dodgr-flows-hh.Rds")
+    saveRDS (f, file = "data/dodgr-flows-disperse-hh.Rds")
 }
 
 if (!file.exists ("data/dodgr-exposure-hh"))
@@ -158,7 +163,7 @@ if (!file.exists ("data/dodgr-exposure-hh"))
     fv <- merge_directed_flows (fv)
     message ("done")
 
-    f <- readRDS ("data/dodgr-flows-hh.Rds") %>%
+    f <- readRDS ("data/dodgr-flows-diserpse-hh.Rds") %>%
         merge_directed_flows ()
     f <- f [which (f$edge_id %in% fvd$edge_id), ]
     indx1 <- match (f$edge_id, fvd$edge_id)

@@ -1,4 +1,5 @@
-LFILE = hamburg-user-feb2019
+LFILE = hamburg-Ruser-feb2019
+SETUPFILE = setup-script
 
 all: knith 
 
@@ -9,4 +10,4 @@ open: $(LFILE).html
 	xdg-open $(LFILE).html &
 
 clean:
-	rm -rf *.html xaringan-themer.css *_cache *_files
+	rm -rf *.html xaringan-themer.css *_cache *_files libs
