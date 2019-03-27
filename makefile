@@ -1,7 +1,7 @@
 LFILE = hamburg-Ruser-feb2019
 SETUPFILE = setup-script
 
-all: knith 
+all: knith open
 
 knith: $(LFILE).Rmd
 	echo "rmarkdown::render('$(LFILE).Rmd',output_file='$(LFILE).html')" | R --no-save -q

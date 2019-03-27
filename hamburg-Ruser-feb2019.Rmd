@@ -1212,27 +1212,7 @@ mapdeck (style = 'mapbox://styles/mapbox/dark-v9') %>%
 ```
 
 ---
-class: center, top, inverse
-.fontBIG[
-Popquiz: <br><br>Where in Hamburg are pedestrians most exposed to air pollution?
-]
-
----
-
-# Where in Hamburg are pedestrians most exposed to air pollution?
-
-- Air pollution comes from automotive vehicles, so need to know where they
-  travel
-
-- Generate another flow layer
-
---
-
-- Implement model to simulate dispersal to adjacent ways including foot paths
-
-- Quantify exposure as pedestrian flows times pollutant concentrations
-
----
+class: left, middle, inverse
 
 .left-column[
 `r icon::fa_github(size = 2, animate = "spin")` atfutures

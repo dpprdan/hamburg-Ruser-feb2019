@@ -23,4 +23,3 @@ plot1map <- function (f, scale = 10)
 
 plot1map ("data/dodgr-flows-aggregate-hh.Rds", scale = 10)
 plot1map ("data/dodgr-flows-disperse-hh.Rds", scale = 5)
-plot1map ("data/dodgr-exposure-hh.Rds", scale = 10)
